@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>한밭푸드 주문 조회</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans KR', Arial, sans-serif; background: #f5f5f5; }
+    header {
+      background: #1a6b3a; color: white; padding: 16px 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    header h1 { font-size: 1.2rem; }
+    .badge {
+      background: #ffffff33; border-radius: 4px;
+      padding: 2px 8px; font-size: 0.75rem;
+    }
+    .container { max-width: 640px; margin: 40px auto; padding: 0 16px; }
+    .card {
+      background: white; border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: 24px;
+    }
+    label { font-size: 0.85rem; color: #555; display: block; margin-bottom: 6px; }
+    .input-row { display: flex; gap: 8px; margin-bottom: 20px; }
+    input {
+      flex: 1; padding: 10px 14px; border: 1px solid #ddd;
+      border-radius: 6px; font-size: 1rem;
+    }
+    button {
+      padding: 10px 20px; background: #1a6b3a; color: white;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;
+    }
+    button:hover { background: #145530; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    #result { margin-top: 16px; }
+    .info-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .key { color: #888; }
+    .status-배송완료 { color: #1a6b3a; font-weight: bold; }
+    .status-배송중   { color: #e67e22; font-weight: bold; }
+    .status-결제완료  { color: #2980b9; font-weight: bold; }
+    .error-box {
+      background: #fff3f3; border: 1px solid #f5c6c6;
+      border-radius: 6px; padding: 16px; color: #c0392b; font-size: 0.9rem;
+    }
+    .timing { color: #aaa; font-size: 0.78rem; text-align: right; margin-top: 8px; }
+    .spinner { display: none; text-align: center; padding: 20px; color: #888; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>🌿</div>
+    <h1>한밭푸드</h1>
+    <span class="badge">주문 조회 시스템 S2</span>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <label for="orderId">주문번호 입력</label>
+      <div class="input-row">
+        <input id="orderId" type="text" placeholder="ORD-001" value="ORD-001" />
+        <button id="searchBtn" onclick="search()">조회</button>
+      </div>
+
+      <div id="spinner" class="spinner">⏳ 조회 중...</div>
+      <div id="result"></div>
+    </div>
+
+    <p style="margin-top:12px; font-size:0.78rem; color:#aaa; text-align:center;">
+      샘플 주문번호: ORD-001 ~ ORD-005
+    </p>
+  </div>
+
+  <script>
+    const API_BASE = window.API_BASE || '';
+
+    async function search() {
+      const orderId = document.getElementById('orderId').value.trim();
+      if (!orderId) return;
+
+      const btn = document.getElementById('searchBtn');
+      const spinner = document.getElementById('spinner');
+      const result = document.getElementById('result');
+
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      result.innerHTML = '';
+
+      const t0 = Date.now();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/orders/${orderId}`);
+        const elapsed = Date.now() - t0;
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          result.innerHTML = `
+            <div class="error-box">
+              <strong>오류 ${res.status}</strong><br/>
+              ${err.detail?.error || '알 수 없는 오류'}: ${err.detail?.message || ''}
+            </div>
+            <div class="timing">응답 시간: ${elapsed}ms</div>
+          `;
+          return;
+        }
+
+        const d = await res.json();
+        const statusClass = `status-${d.status}`;
+        result.innerHTML = `
+          <div class="info-row"><span class="key">주문번호</span><span>${d.order_id}</span></div>
+          <div class="info-row"><span class="key">상품명</span><span>${d.product_name}</span></div>
+          <div class="info-row"><span class="key">금액</span><span>${d.amount.toLocaleString()}원</span></div>
+          <div class="info-row"><span class="key">배송 상태</span><span class="${statusClass}">${d.status}</span></div>
+          <div class="info-row"><span class="key">주문일</span><span>${d.ordered_at}</span></div>
+          <div class="info-row"><span class="key">결제 수단</span><span>${d.payment?.method || '-'}</span></div>
+          <div class="info-row"><span class="key">결제 상태</span><span>${d.payment?.status || '-'}</span></div>
+          <div class="timing">총 응답 시간: ${d.total_response_time_ms}ms (클라이언트 측: ${elapsed}ms)</div>
+        `;
+      } catch (e) {
+        result.innerHTML = `<div class="error-box"><strong>네트워크 오류</strong><br/>${e.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+      }
+    }
+
+    document.getElementById('orderId').addEventListener('keydown', e => {
+      if (e.key === 'Enter') search();
+    });
+  </script>
+</body>
+</html>

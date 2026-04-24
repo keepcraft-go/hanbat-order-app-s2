@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.env
+*.env
+
+# 로컬 설정 (절대 커밋 금지)
+.env.local
+.env.*.local
+azure_credentials.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# macOS
+.DS_Store
+
+# Docker
+.dockerignore
+
+# MkDocs (가이드 사이트 빌드 결과물)
+site/

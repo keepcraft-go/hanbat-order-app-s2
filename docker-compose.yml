@@ -1,0 +1,46 @@
+version: "3.9"
+
+# 로컬 통합 테스트용
+# 사용법: docker compose up --build
+# 브라우저: http://localhost:8080
+
+services:
+  payment-api:
+    build:
+      context: ./payment-api
+    ports:
+      - "8081:8080"
+    environment:
+      # Phase 1 장애 재현: 아래 값을 변경하고 docker compose up --build 재실행
+      FAULT_DELAY_MS: "0"       # 예) "8000" → 8초 지연
+      FAULT_ERROR_RATE: "0.0"   # 예) "0.5"  → 50% 확률 503 에러
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  order-api:
+    build:
+      context: ./order-api
+    ports:
+      - "8082:8080"
+    environment:
+      PAYMENT_API_URL: "http://payment-api:8080"
+    depends_on:
+      payment-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  order-web:
+    build:
+      context: ./order-web
+    ports:
+      - "3000:80"
+    depends_on:
+      order-api:
+        condition: service_healthy
