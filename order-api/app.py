@@ -45,7 +45,7 @@ ORDERS: dict[str, dict] = {
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "order-api"}
+    return {"status": "ok", "service": "order-api","version": "v2"}
 
 
 @app.get("/api/orders/{order_id}")
