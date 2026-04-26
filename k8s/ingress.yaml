@@ -5,9 +5,9 @@ metadata:
   namespace: hanbat-keepcraft-go
   annotations:
     # AKS 기본 nginx ingress controller 사용
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
     # Phase 3~4 실습: IP 기반 접근 (FQDN 설정 없음)
     # 강사가 제공하는 ingress IP 주소로 브라우저에서 접근합니다
