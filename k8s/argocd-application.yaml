@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: hanbat-s2-<본인_GitHub_사용자명>
+  name: hanbat-s2-keepcraft-go
   # ArgoCD 가 설치된 네임스페이스 (강사가 사전 설치)
   namespace: argocd
   labels:
@@ -10,8 +10,8 @@ spec:
   project: default
   source:
     # TODO: 본인 GitHub 레포지터리 URL 로 변경하세요
-    # 예) https://github.com/<본인_GitHub_사용자명>/hanbat-order-app-s2
-    repoURL: https://github.com/<본인_GitHub_사용자명>/hanbat-order-app-s2
+    # 예) https://github.com/keepcraft-go/hanbat-order-app-s2
+    repoURL: https://github.com/keepcraft-go/hanbat-order-app-s2
     targetRevision: main
     # k8s/ 디렉터리의 매니페스트를 모두 배포
     path: k8s
