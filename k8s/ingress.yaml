@@ -5,7 +5,6 @@ metadata:
   namespace: hanbat-keepcraft-go
   annotations:
     # AKS 기본 nginx ingress controller 사용
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
