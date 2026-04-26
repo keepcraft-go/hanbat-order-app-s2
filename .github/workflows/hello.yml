@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 코드 체크아웃
+      - name: "코드 체크아웃"
         uses: actions/checkout@v4
 
-      - name: 인사하기
+      - name: "인사하기"
         run: echo "안녕하세요, ${{ github.actor }}님! 커밋: ${{ github.sha }}"
 
-      - name: 파일 목록 출력
+      - name: "파일 목록 출력"
         run: ls -la
